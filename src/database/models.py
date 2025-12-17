@@ -22,4 +22,8 @@ class Cliente(Base):
     nome = Column(String(50), nullable= False )
     cpf = Column(String(14), nullable=False)
     data_nascimento = Column(Date, nullable=True)
-    limite = Column(DOUBLE, nullable= True)
+    limite = Column(DOUBLE, nullable= True)   
+
+
+
+    
