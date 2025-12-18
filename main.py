@@ -1,7 +1,7 @@
 
 from fastapi import Depends, FastAPI, HTTPException
 
-from src.database.conexao import get_db
+from src.database.conexao import get_db, get_db_livro
 
 from sqlalchemy.orm import session
 
@@ -284,21 +284,22 @@ def buscar_categoria_por_id(id: int, db: session= Depends(get_db)):
 
 
 @app.get("/api/v1/produtos", tags=["Produtos"])
-def listar_todos_produtos():
-    produtos = mercado_produto_repositorio.obter_todos()
-    return produtos
+def listar_todos_produtos(db: session = Depends (get_db)):
+ produtos = mercado_produto_repositorio.obter_todos(db)
+ return produtos
+    
 
 
 # Cadastrar
 @app.post("/api/v1/produtos", tags=["Produtos"])
-def cadastrar_podutos(produto: ProdutoCriar):
-    mercado_produto_repositorio.cadastrar(produto.nome, produto.id_categoria)
+def cadastrar_podutos(produto: ProdutoCriar, db : session = Depends(get_db)):
+    mercado_produto_repositorio.cadastrar(db,produto.nome, produto.id_categoria)
     return{"status": "ok"}
 
 #editar
 @app.put("/api/v1/produtos/{id}", tags=["Produtos"] )
-def editar_produtos(produto: ProdutoEdita, id: int):
-    linhas_afetadas = mercado_produto_repositorio.editar(id, produto.nome, produto.id_categoria)
+def editar_produtos(produto: ProdutoEdita, id: int, db: session = Depends(get_db)):
+    linhas_afetadas = mercado_produto_repositorio.editar(db, id, produto.nome, produto.id_categoria)
     if linhas_afetadas !=1 : 
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return{
@@ -307,8 +308,8 @@ def editar_produtos(produto: ProdutoEdita, id: int):
 
 
 @app.get("/api/v1/produtos/{id}", tags=["Produtos"] )
-def obter_produto_por_id(id:int):
-    produto = mercado_produto_repositorio.obter_por_id(id)
+def obter_produto_por_id(id:int, db: session = Depends(get_db)):
+    produto = mercado_produto_repositorio.obter_por_id(db, id)
     if produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return produto
@@ -317,8 +318,8 @@ def obter_produto_por_id(id:int):
 
 # Apagar
 @app.delete("/api/v1/produtos/{id}",  tags=["Produtos"] )
-def apagar_produto(id: int):
-    linhas_afetadas = mercado_produto_repositorio.apagar(id)
+def apagar_produto(id: int, db: session = Depends(get_db)):
+    linhas_afetadas = mercado_produto_repositorio.apagar(db, id)
     if linhas_afetadas != 1:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return{"status" : "ok"}
@@ -329,22 +330,22 @@ def apagar_produto(id: int):
 #
 
 @app.get("/api/v1/livros", tags=["Livros"])
-def listar_livros():
-    livro = biblioteca_livro_repositorios.obter_todos()
+def listar_livros(db: session = Depends(get_db_livro)):
+    livro = biblioteca_livro_repositorios.obter_todos(db)
     return livro
 
 
 @app.get("/api/v1/livros/{id}",  tags=["Livros"])
-def obter_livros_id(id: int):
-    livro = biblioteca_livro_repositorios.obter_por_id(id)
+def obter_livros_id(id: int, db:session = Depends(get_db_livro)):
+    livro = biblioteca_livro_repositorios.obter_por_id(db,id)
     if livro is None :
         raise HTTPException(status_code=404, detail="Livro não encontrado")
     return livro
 
 
 @app.post("/api/v1/livros", tags=["Livros"] )
-def cadastrar_livros(livro : LivroCriar):
-    biblioteca_livro_repositorios.cadastrar(livro.titulo, livro.autor, livro.preco, livro.isbn, livro.descricao)
+def cadastrar_livros(livro : LivroCriar, db: session = Depends(get_db_livro)):
+    biblioteca_livro_repositorios.cadastrar(db, livro.titulo, livro.autor, livro.preco, livro.isbn, livro.descricao, livro.quantidade_paginas)
     return{
         "status" : "ok"
     }

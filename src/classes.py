@@ -60,6 +60,7 @@ class LivroCriar(BaseModel):
     preco: float
     isbn : str 
     descricao: str
+    quantidade_paginas: int
 
 
 class LivroEditar(BaseModel):
@@ -68,6 +69,7 @@ class LivroEditar(BaseModel):
     preco: float
     isbn : str 
     descricao: str
+    quantidade_paginas: int
 
 
 class MangaCriar(BaseModel):

@@ -18,3 +18,20 @@ def get_db():
     finally:
         db.close()
 
+
+
+    
+LIVRO_DATABASE_URL = "mysql+pymysql://root:adimn@127.0.0.1:3306/biblioteca"
+
+livro_engine = create_engine(LIVRO_DATABASE_URL, echo=False)
+
+livrosessionlocal = sessionmaker(bind=livro_engine, autocommit = False, autoflush=False)
+
+
+def get_db_livro():
+    db = livrosessionlocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
